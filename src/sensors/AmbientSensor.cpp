@@ -38,7 +38,7 @@ Measurement<float> AmbientSensor::getHumidity()
 
 AmbientSensor::AmbientSensor(uint8_t pin, AmbientSensorConfig ambientSensorConfig) : _dht(pin, ambientSensorConfig.type), ambientSensorConfig(ambientSensorConfig)
 {
-    this->_millis = millis();
+    this->_millis = Helpers::getMillis();
 
     this->_lastTemperature.quantity = "temperature";
     this->_lastTemperature.unit = getTemperatureUnit(ambientSensorConfig.temperatureUnit);
@@ -55,12 +55,13 @@ AmbientSensor::~AmbientSensor()
 
 void AmbientSensor::measure()
 {
-    bool value = (millis() - _millis) > ambientSensorConfig.measurementIntervalInSeconds * 1000;
+    bool value = (Helpers::getMillis() - _millis) > ambientSensorConfig.measurementIntervalInSeconds * 1000;
 
-    if (value)
+    if (_isFirstCall || value)
     {
+        _isFirstCall = false;
         _measurementCallback(getTemperature(), getHumidity());
-        _millis = millis();
+        _millis = Helpers::getMillis();
     }
 }
 

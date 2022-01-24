@@ -150,5 +150,17 @@ void loop()
   pResetDetector->process();
   pAmbientSensor->measure();
 
-  delay(500);
+  // return early to allow for disabling reset detection
+  if (pResetDetector->isEnabled())
+  {
+    delay(250);
+    return;
+  }
+
+  Helpers::setMillisOffset(gAmbientSensorConfig.measurementIntervalInSeconds * 1000);
+  Serial.println(F("Going into deep sleep..."));
+  // subtract 15 seconds from millis offset because this is rougly what the overhead to establish a communication takes until we can measure
+  ESP.deepSleep((gAmbientSensorConfig.measurementIntervalInSeconds - 15) * 1000000);
+  yield();
+  Serial.println(F("Error: Deep sleep failed."));
 }

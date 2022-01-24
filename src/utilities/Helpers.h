@@ -3,6 +3,10 @@
 
 #include <Arduino.h>
 
+#ifdef ESP8266
+#include <user_interface.h>
+#endif
+
 #ifdef ESP32
 
 #define LED_ON HIGH
@@ -17,8 +21,17 @@
 
 class Helpers
 {
+private:
+#ifdef ESP32
+    RTC_DATA_ATTR static unsigned long _millisOffset;
+#else
+    static unsigned long _millisOffset;
+#endif
+
 public:
     static String getChipId();
+    static unsigned long getMillis();
+    static void setMillisOffset(unsigned long offset);
 };
 
 #endif
