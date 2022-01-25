@@ -4,6 +4,7 @@
 #include <Arduino.h>
 
 #ifdef ESP32
+#include <rom/rtc.h>
 #include "freertos/timers.h"
 #define LED_ON HIGH
 #define LED_OFF LOW
@@ -37,6 +38,7 @@ private:
 
 public:
     static String getChipId();
+    static bool hasStartedFromDeepSleep();
     static unsigned long getMillis();
     static void setMillisOffset(unsigned long offset);
     static void startLedFlashing(uint32_t interval);

@@ -47,7 +47,7 @@ void handleConfigPortalCallback(bool success, WiFiConfig &wiFiConfig, std::map<c
   // workaround because WiFi manager sometimes can't properly connect to WiFi after config portal
   if (!pWiFiManager->isConnected())
   {
-    pResetDetector->stop();
+    pResetDetector->disable();
     ESP.restart();
   }
 }
@@ -97,7 +97,11 @@ void setup()
   // however, since this object instance is need for the entire lifetime of the program, it is useless to declare memory reclaiming for it
   pResetDetector = new ResetDetector(pConfigManager, 15);
 
-  if (pResetDetector->shouldReset())
+  if (Helpers::hasStartedFromDeepSleep())
+  {
+    pResetDetector->disable();
+  }
+  else if (pResetDetector->shouldReset())
   {
     pConfigManager->reset(pConfigManager->HardReset);
     ESP.restart();
@@ -155,7 +159,6 @@ void loop()
   pAmbientSensor->measure();
 
   // return early to allow for disabling reset detection
-  // TODO: disable this when returning from deep sleep to prevent unnecessary long uptimes!
   if (pResetDetector->isEnabled())
   {
     delay(250);

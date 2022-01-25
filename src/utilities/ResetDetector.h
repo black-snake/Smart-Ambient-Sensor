@@ -22,7 +22,7 @@ public:
     bool isEnabled();
     bool shouldReset();
     void process();
-    void stop();
+    void disable();
 };
 
 #endif

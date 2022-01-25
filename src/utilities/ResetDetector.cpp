@@ -36,11 +36,11 @@ void ResetDetector::process()
 
     if (Helpers::getMillis() > _end)
     {
-        stop();
+        disable();
     }
 }
 
-void ResetDetector::stop()
+void ResetDetector::disable()
 {
     _isEnabled = false;
     _shouldReset = false;

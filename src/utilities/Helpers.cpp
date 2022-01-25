@@ -22,12 +22,21 @@ String Helpers::getChipId()
     return String("ESP-" + chipId);
 }
 
+bool Helpers::hasStartedFromDeepSleep()
+{
+#ifdef ESP32
+    return rtc_get_reset_reason(0) == DEEPSLEEP_RESET;
+#else
+    rst_info *pRstInfo = ESP.getResetInfoPtr();
+
+    return pRstInfo->reason == REASON_DEEP_SLEEP_AWAKE;
+#endif
+}
+
 unsigned long Helpers::getMillis()
 {
 #ifdef ESP8266
-    rst_info *pRstInfo = ESP.getResetInfoPtr();
-
-    if ((pRstInfo)->reason == REASON_DEEP_SLEEP_AWAKE)
+    if (hasStartedFromDeepSleep())
     {
         ESP.rtcUserMemoryRead(0, (uint32_t *)&_millisOffset, sizeof(_millisOffset));
     }
