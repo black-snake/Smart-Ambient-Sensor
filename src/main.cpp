@@ -80,6 +80,8 @@ void handleMeasurementCallback(Measurement<float> temperature, Measurement<float
 
 void setup()
 {
+  Helpers::startLedFlashing(250);
+
   Serial.begin(115200);
 
   while (!Serial)
@@ -143,6 +145,8 @@ void setup()
   // however, since this object instance is need for the entire lifetime of the program, it is useless to declare memory reclaiming for it
   pMqttClient = new MqttClient(gMqttConfig);
   pMqttClient->connect();
+
+  Helpers::stopLedFlashing();
 }
 
 void loop()
@@ -151,6 +155,7 @@ void loop()
   pAmbientSensor->measure();
 
   // return early to allow for disabling reset detection
+  // TODO: disable this when returning from deep sleep to prevent unnecessary long uptimes!
   if (pResetDetector->isEnabled())
   {
     delay(250);
