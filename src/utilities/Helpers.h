@@ -4,7 +4,10 @@
 #include <Arduino.h>
 
 #ifdef ESP8266
-#include <user_interface.h>
+extern "C"
+{
+#include "user_interface.h"
+}
 #endif
 
 #ifdef ESP32
