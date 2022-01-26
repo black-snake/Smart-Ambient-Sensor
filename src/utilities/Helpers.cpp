@@ -73,7 +73,7 @@ void Helpers::startLedFlashing(uint32_t interval)
     {
         xTimerStop(_pLedTimer, 10);
     }
-    
+
     _pLedTimer = xTimerCreate("toggleLed", pdMS_TO_TICKS(interval), pdTRUE, nullptr, toggleLed);
     xTimerStart(_pLedTimer, 10);
 #else
@@ -94,14 +94,14 @@ void Helpers::stopLedFlashing()
     // make sure the LED is off
     digitalWrite(LED_BUILTIN, LED_OFF);
 
-#ifdef ESP32
-    xTimerStop(_pLedTimer, 10);
-#else
     if (_pLedTimer != nullptr)
     {
+#ifdef ESP32
+        xTimerStop(_pLedTimer, 10);
+#else
         os_timer_disarm(_pLedTimer);
         delete[] _pLedTimer;
+#endif
         _pLedTimer = nullptr;
     }
-#endif
 }
