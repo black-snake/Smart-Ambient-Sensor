@@ -3,7 +3,7 @@
 unsigned long Helpers::_millisOffset;
 
 #ifdef ESP32
-TimerHandle_t Helpers::_ledTimer;
+TimerHandle_t Helpers::_pLedTimer = nullptr;
 #else
 os_timer_t *Helpers::_pLedTimer = nullptr;
 #endif
@@ -69,8 +69,13 @@ void Helpers::startLedFlashing(uint32_t interval)
     pinMode(LED_BUILTIN, OUTPUT);
 
 #ifdef ESP32
-    _ledTimer = xTimerCreate("toggleLed", pdMS_TO_TICKS(interval), pdTRUE, nullptr, toggleLed);
-    xTimerStart(_ledTimer, 10);
+    if (_pLedTimer != nullptr)
+    {
+        xTimerStop(_pLedTimer, 10);
+    }
+    
+    _pLedTimer = xTimerCreate("toggleLed", pdMS_TO_TICKS(interval), pdTRUE, nullptr, toggleLed);
+    xTimerStart(_pLedTimer, 10);
 #else
     if (_pLedTimer != nullptr)
     {
@@ -90,7 +95,7 @@ void Helpers::stopLedFlashing()
     digitalWrite(LED_BUILTIN, LED_OFF);
 
 #ifdef ESP32
-    xTimerStop(_ledTimer, 10);
+    xTimerStop(_pLedTimer, 10);
 #else
     if (_pLedTimer != nullptr)
     {

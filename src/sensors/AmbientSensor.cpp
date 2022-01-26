@@ -55,9 +55,9 @@ AmbientSensor::~AmbientSensor()
 
 void AmbientSensor::measure()
 {
-    bool value = (Helpers::getMillis() - _millis) > ambientSensorConfig.measurementIntervalInSeconds * 1000;
+    bool result = (Helpers::getMillis() - _millis) > ambientSensorConfig.measurementIntervalInSeconds * 1000;
 
-    if (_isFirstCall || value)
+    if (_isFirstCall || result)
     {
         _isFirstCall = false;
         _measurementCallback(getTemperature(), getHumidity());
