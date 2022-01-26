@@ -22,7 +22,7 @@ class Helpers
 private:
 #ifdef ESP32
     RTC_DATA_ATTR static unsigned long _millisOffset;
-    static TimerHandle_t _ledTimer;
+    static TimerHandle_t _pLedTimer;
 #else
     static unsigned long _millisOffset;
     static os_timer_t *_pLedTimer;
