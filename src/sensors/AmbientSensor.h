@@ -2,8 +2,8 @@
 #define AmbientSensor_h
 
 #include "../config/models/AmbientSensorConfig.h"
-
 #include "data/Measurement.h"
+#include "../utilities/Helpers.h"
 
 #include <Adafruit_Sensor.h>
 #include <DHT.h>
@@ -12,6 +12,7 @@ class AmbientSensor
 {
 private:
     DHT _dht;
+    bool _isFirstCall = true;
     unsigned long _millis;
     Measurement<float> _lastTemperature;
     Measurement<float> _lastHumidity;

@@ -47,7 +47,7 @@ void handleConfigPortalCallback(bool success, WiFiConfig &wiFiConfig, std::map<c
   // workaround because WiFi manager sometimes can't properly connect to WiFi after config portal
   if (!pWiFiManager->isConnected())
   {
-    pResetDetector->stop();
+    pResetDetector->disable();
     ESP.restart();
   }
 }
@@ -80,6 +80,8 @@ void handleMeasurementCallback(Measurement<float> temperature, Measurement<float
 
 void setup()
 {
+  Helpers::startLedFlashing(250);
+
   Serial.begin(115200);
 
   while (!Serial)
@@ -95,7 +97,11 @@ void setup()
   // however, since this object instance is need for the entire lifetime of the program, it is useless to declare memory reclaiming for it
   pResetDetector = new ResetDetector(pConfigManager, 15);
 
-  if (pResetDetector->shouldReset())
+  if (Helpers::hasStartedFromDeepSleep())
+  {
+    pResetDetector->disable();
+  }
+  else if (pResetDetector->shouldReset())
   {
     pConfigManager->reset(pConfigManager->HardReset);
     ESP.restart();
@@ -143,6 +149,8 @@ void setup()
   // however, since this object instance is need for the entire lifetime of the program, it is useless to declare memory reclaiming for it
   pMqttClient = new MqttClient(gMqttConfig);
   pMqttClient->connect();
+
+  Helpers::stopLedFlashing();
 }
 
 void loop()
@@ -150,5 +158,17 @@ void loop()
   pResetDetector->process();
   pAmbientSensor->measure();
 
-  delay(500);
+  // return early to allow for disabling reset detection
+  if (pResetDetector->isEnabled())
+  {
+    delay(250);
+    return;
+  }
+
+  Helpers::setMillisOffset(gAmbientSensorConfig.measurementIntervalInSeconds * 1000);
+  Serial.println(F("Going into deep sleep..."));
+  // subtract 15 seconds from millis offset because this is rougly what the overhead to establish a communication takes until we can measure
+  ESP.deepSleep((gAmbientSensorConfig.measurementIntervalInSeconds - 15) * 1000000);
+  yield();
+  Serial.println(F("Error: Deep sleep failed."));
 }
