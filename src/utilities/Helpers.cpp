@@ -74,6 +74,7 @@ void Helpers::startLedFlashing(uint32_t interval)
 #else
     if (_pLedTimer != nullptr)
     {
+        os_timer_disarm(_pLedTimer);
         delete[] _pLedTimer;
     }
 
