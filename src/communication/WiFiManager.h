@@ -52,6 +52,7 @@ public:
     String hostname;
 
     bool tryAutoConnect(uint8_t maxNoOfTries = 20);
+    bool disconnect();
     bool isConnected();
     void addConfigParameter(const char *id, const char *placeholder, const char *defaultValue, int length, const char *customHtml = "", LabelPlacement labelPlacement = Before);
     void setConfigPortalCallback(const ConfigPortalCallback configPortalCallback);

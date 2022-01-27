@@ -76,6 +76,9 @@ void handleMeasurementCallback(Measurement<float> temperature, Measurement<float
   serializeJson(doc, message);
 
   pMqttClient->publish(message.c_str());
+  
+  pMqttClient->disconnect();
+  pWiFiManager->disconnect();
 }
 
 void setup()
