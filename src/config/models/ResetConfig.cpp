@@ -11,7 +11,7 @@ const char *ResetConfig::getFileName()
 
 String ResetConfig::serialize()
 {
-    return "{}";
+    return F("{}");
 }
 
 ResetConfig ResetConfig::deserialize(const char *content)

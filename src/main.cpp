@@ -76,11 +76,14 @@ void handleMeasurementCallback(Measurement<float> temperature, Measurement<float
   serializeJson(doc, message);
 
   pMqttClient->publish(message.c_str());
+  
+  pMqttClient->disconnect();
+  pWiFiManager->disconnect();
 }
 
 void setup()
 {
-  Helpers::startLedFlashing(250);
+  Helpers::ledFlasher.start(250);
 
   Serial.begin(115200);
 
@@ -149,12 +152,12 @@ void setup()
   // however, since this object instance is need for the entire lifetime of the program, it is useless to declare memory reclaiming for it
   pMqttClient = new MqttClient(gMqttConfig);
   pMqttClient->connect();
-
-  Helpers::stopLedFlashing();
 }
 
 void loop()
 {
+  Helpers::ledFlasher.start(50);
+
   pResetDetector->process();
   pAmbientSensor->measure();
 

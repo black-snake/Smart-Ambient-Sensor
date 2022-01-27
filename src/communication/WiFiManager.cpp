@@ -101,6 +101,11 @@ bool WiFiManager::tryAutoConnect(uint8_t maxNoOfTries)
     return status == WL_CONNECTED;
 }
 
+bool WiFiManager::disconnect()
+{
+    return WiFi.disconnect();
+}
+
 bool WiFiManager::isConnected()
 {
     return WiFi.status() == WL_CONNECTED;
