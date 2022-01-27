@@ -2,13 +2,16 @@
 
 unsigned long Helpers::_millisOffset;
 
-#ifdef ESP32
-TimerHandle_t Helpers::_pLedTimer = nullptr;
-#else
-os_timer_t *Helpers::_pLedTimer = nullptr;
-#endif
-
 bool Helpers::_ledState = false;
+
+Timer Helpers::ledFlasher = Timer(&Helpers::toggleLed);
+
+void Helpers::toggleLed()
+{
+    pinMode(LED_BUILTIN, OUTPUT);
+    _ledState = !_ledState;
+    digitalWrite(LED_BUILTIN, _ledState);
+}
 
 String Helpers::getChipId()
 {
@@ -52,56 +55,4 @@ void Helpers::setMillisOffset(unsigned long millisOffset)
 #ifdef ESP8266
     ESP.rtcUserMemoryWrite(0, (uint32_t *)&_millisOffset, sizeof(_millisOffset));
 #endif
-}
-
-#ifdef ESP32
-void Helpers::toggleLed(TimerHandle_t timerHandle)
-#else
-void Helpers::toggleLed(void *pArg)
-#endif
-{
-    _ledState = !_ledState;
-    digitalWrite(LED_BUILTIN, _ledState);
-}
-
-void Helpers::startLedFlashing(uint32_t interval)
-{
-    pinMode(LED_BUILTIN, OUTPUT);
-
-#ifdef ESP32
-    if (_pLedTimer != nullptr)
-    {
-        xTimerStop(_pLedTimer, 10);
-    }
-
-    _pLedTimer = xTimerCreate("toggleLed", pdMS_TO_TICKS(interval), pdTRUE, nullptr, toggleLed);
-    xTimerStart(_pLedTimer, 10);
-#else
-    if (_pLedTimer != nullptr)
-    {
-        os_timer_disarm(_pLedTimer);
-        delete[] _pLedTimer;
-    }
-
-    _pLedTimer = new os_timer_t();
-    os_timer_setfn(_pLedTimer, toggleLed, nullptr);
-    os_timer_arm(_pLedTimer, interval, true);
-#endif
-}
-
-void Helpers::stopLedFlashing()
-{
-    // make sure the LED is off
-    digitalWrite(LED_BUILTIN, LED_OFF);
-
-    if (_pLedTimer != nullptr)
-    {
-#ifdef ESP32
-        xTimerStop(_pLedTimer, 10);
-#else
-        os_timer_disarm(_pLedTimer);
-        delete[] _pLedTimer;
-#endif
-        _pLedTimer = nullptr;
-    }
 }
