@@ -55,4 +55,3 @@ void Helpers::setMillisOffset(unsigned long millisOffset)
 #ifdef ESP8266
     ESP.rtcUserMemoryWrite(0, (uint32_t *)&_millisOffset, sizeof(_millisOffset));
 #endif
-}
