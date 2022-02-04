@@ -12,7 +12,7 @@ class AmbientSensor
 {
 private:
     DHT _dht;
-    bool _isFirstCall = true;
+    bool _isInitialMeasurement = true;
     unsigned long _millis;
     Measurement<float> _lastTemperature;
     Measurement<float> _lastHumidity;

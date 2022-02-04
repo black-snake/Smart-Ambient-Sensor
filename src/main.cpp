@@ -47,7 +47,7 @@ void handleConfigPortalCallback(bool success, WiFiConfig &wiFiConfig, std::map<c
   // workaround because WiFi manager sometimes can't properly connect to WiFi after config portal
   if (!pWiFiManager->isConnected())
   {
-    pResetDetector->disable();
+    pResetDetector->stop();
     ESP.restart();
   }
 }
@@ -83,7 +83,7 @@ void handleMeasurementCallback(Measurement<float> temperature, Measurement<float
 
 void setup()
 {
-  Helpers::ledFlasher.start(250);
+  Helpers::led.set(Led::State::On);
 
   Serial.begin(115200);
 
@@ -98,18 +98,19 @@ void setup()
 
   // usually, object instances created with keyword 'new' need to be deleted manually
   // however, since this object instance is need for the entire lifetime of the program, it is useless to declare memory reclaiming for it
-  pResetDetector = new ResetDetector(pConfigManager, 15);
+  pResetDetector = new ResetDetector(pConfigManager);
 
-  if (Helpers::hasStartedFromDeepSleep())
+  if (pResetDetector->shouldReset())
   {
-    pResetDetector->disable();
-  }
-  else if (pResetDetector->shouldReset())
-  {
-    pConfigManager->reset(pConfigManager->HardReset);
+    pConfigManager->reset(pConfigManager->ConfigManager::ResetMode::HardReset);
     ESP.restart();
   }
 
+  if (!Helpers::hasStartedFromDeepSleep())
+  {
+    pResetDetector->start(15 * 1000);
+  }
+  
   WiFiConfig wiFiConfig;
   if (pConfigManager->exists(wiFiConfig))
   {
@@ -156,7 +157,7 @@ void setup()
 
 void loop()
 {
-  Helpers::ledFlasher.start(50);
+  Helpers::led.toggle();
 
   pResetDetector->process();
   pAmbientSensor->measure();
@@ -164,7 +165,7 @@ void loop()
   // return early to allow for disabling reset detection
   if (pResetDetector->isEnabled())
   {
-    delay(250);
+    delay(50);
     return;
   }
 

@@ -4,11 +4,11 @@ String AmbientSensor::getTemperatureUnit(TemperatureUnit temperatureUnit)
 {
     switch (temperatureUnit)
     {
-    case Kelvin:
+    case TemperatureUnit::Kelvin:
         return "K";
-    case Celsius:
+    case TemperatureUnit::Celsius:
         return "°C";
-    case Fahrenheit:
+    case TemperatureUnit::Fahrenheit:
         return "°F";
     default:
         return "";
@@ -17,11 +17,11 @@ String AmbientSensor::getTemperatureUnit(TemperatureUnit temperatureUnit)
 
 Measurement<float> AmbientSensor::getTemperature()
 {
-    bool useFahrenheit = ambientSensorConfig.temperatureUnit == Fahrenheit;
+    bool useFahrenheit = ambientSensorConfig.temperatureUnit == TemperatureUnit::Fahrenheit;
 
     _lastTemperature.value = _dht.readTemperature(useFahrenheit);
 
-    if (ambientSensorConfig.temperatureUnit == Kelvin)
+    if (ambientSensorConfig.temperatureUnit == TemperatureUnit::Kelvin)
     {
         _lastTemperature.value += 273.15;
     }
@@ -57,9 +57,9 @@ void AmbientSensor::measure()
 {
     bool result = (Helpers::getMillis() - _millis) > ambientSensorConfig.measurementIntervalInSeconds * 1000;
 
-    if (_isFirstCall || result)
+    if (_isInitialMeasurement || result)
     {
-        _isFirstCall = false;
+        _isInitialMeasurement = false;
         _measurementCallback(getTemperature(), getHumidity());
         _millis = Helpers::getMillis();
     }

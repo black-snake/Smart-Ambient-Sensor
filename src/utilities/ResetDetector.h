@@ -9,20 +9,20 @@
 class ResetDetector
 {
 private:
-    unsigned long _end;
-    bool _isEnabled = true;
-    bool _shouldReset;
+    unsigned long _end = 0;
+    bool _isEnabled = false;
     ConfigManager *_pConfigManager = nullptr;
     ResetConfig _resetConfig;
 
 public:
-    ResetDetector(ConfigManager *pConfigManager, unsigned long timeoutInSeconds = 10);
+    ResetDetector(ConfigManager *pConfigManager);
     ~ResetDetector();
 
     bool isEnabled();
     bool shouldReset();
+    void start(unsigned long timeout = 10 * 1000);
+    void stop();
     void process();
-    void disable();
 };
 
 #endif
