@@ -70,9 +70,9 @@ bool ConfigManager::reset(ResetMode resetMode)
 
     switch (resetMode)
     {
-    case HardReset:
+    case ResetMode::HardReset:
         return hardReset();
-    case SoftReset:
+    case ResetMode::SoftReset:
         return softReset();
     default:
         return false;

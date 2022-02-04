@@ -2,6 +2,8 @@
 
 unsigned long Helpers::_millisOffset;
 
+Led Helpers::led;
+
 String Helpers::getChipId()
 {
 #ifdef ESP32
@@ -44,10 +46,4 @@ void Helpers::setMillisOffset(unsigned long millisOffset)
 #ifdef ESP8266
     ESP.rtcUserMemoryWrite(0, (uint32_t *)&_millisOffset, sizeof(_millisOffset));
 #endif
-}
-
-void Helpers::setLedState(LedState ledState)
-{
-    pinMode(LED_BUILTIN, OUTPUT);
-    digitalWrite(LED_BUILTIN, (uint8_t)ledState);
 }

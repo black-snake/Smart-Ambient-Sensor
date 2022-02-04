@@ -83,7 +83,7 @@ void handleMeasurementCallback(Measurement<float> temperature, Measurement<float
 
 void setup()
 {
-  Helpers::setLedState(Helpers::LedState::On);
+  Helpers::led.set(Led::State::On);
 
   Serial.begin(115200);
 
@@ -102,7 +102,7 @@ void setup()
 
   if (pResetDetector->shouldReset())
   {
-    pConfigManager->reset(pConfigManager->HardReset);
+    pConfigManager->reset(pConfigManager->ConfigManager::ResetMode::HardReset);
     ESP.restart();
   }
 

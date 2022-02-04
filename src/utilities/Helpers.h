@@ -2,6 +2,7 @@
 #define Helpers_h
 
 #include <Arduino.h>
+#include "Led.h"
 
 #ifdef ESP32
 #include <rom/rtc.h>
@@ -22,16 +23,7 @@ private:
 #endif
 
 public:
-    enum LedState
-    {
-#ifdef ESP32
-        On = HIGH,
-        Off = LOW
-#else
-        On = LOW,
-        Off = HIGH
-#endif
-    };
+    static Led led;
 
     static String getChipId();
 
@@ -39,8 +31,6 @@ public:
 
     static unsigned long getMillis();
     static void setMillisOffset(unsigned long offset);
-
-    static void setLedState(LedState ledState);
 };
 
 #endif
