@@ -157,13 +157,15 @@ void setup()
 
 void loop()
 {
+  Helpers::led.toggle();
+
   pResetDetector->process();
   pAmbientSensor->measure();
 
   // return early to allow for disabling reset detection
   if (pResetDetector->isEnabled())
   {
-    delay(250);
+    delay(50);
     return;
   }
 
