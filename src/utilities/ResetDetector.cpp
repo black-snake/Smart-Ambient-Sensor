@@ -1,16 +1,8 @@
 #include "ResetDetector.h"
 
-ResetDetector::ResetDetector(ConfigManager *pConfigManager, unsigned long timeoutInSeconds)
+ResetDetector::ResetDetector(ConfigManager *pConfigManager)
 {
-    this->_end = Helpers::getMillis() + timeoutInSeconds * 1000;
     this->_pConfigManager = pConfigManager;
-
-    this->_shouldReset = _pConfigManager->exists(_resetConfig);
-
-    if (!this->_shouldReset)
-    {
-        _pConfigManager->write(_resetConfig);
-    }
 }
 
 ResetDetector::~ResetDetector()
@@ -24,7 +16,35 @@ bool ResetDetector::isEnabled()
 
 bool ResetDetector::shouldReset()
 {
-    return _shouldReset;
+    return _pConfigManager->exists(_resetConfig);
+}
+
+void ResetDetector::start(unsigned long timeout)
+{
+    if (_isEnabled)
+    {
+        return;
+    }
+
+    _end = Helpers::getMillis() + timeout;
+
+    if (_pConfigManager->write(_resetConfig))
+    {
+        _isEnabled = true;
+    }
+}
+
+void ResetDetector::stop()
+{
+    if (!_isEnabled)
+    {
+        return;
+    }
+
+    if (_pConfigManager->remove(_resetConfig))
+    {
+        _isEnabled = false;
+    }
 }
 
 void ResetDetector::process()
@@ -36,13 +56,6 @@ void ResetDetector::process()
 
     if (Helpers::getMillis() > _end)
     {
-        disable();
+        stop();
     }
-}
-
-void ResetDetector::disable()
-{
-    _isEnabled = false;
-    _shouldReset = false;
-    _pConfigManager->remove(_resetConfig);
 }
