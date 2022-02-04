@@ -22,10 +22,25 @@ private:
 #endif
 
 public:
+    enum LedState
+    {
+#ifdef ESP32
+        On = HIGH,
+        Off = LOW
+#else
+        On = LOW,
+        Off = HIGH
+#endif
+    };
+
     static String getChipId();
+
     static bool hasStartedFromDeepSleep();
+
     static unsigned long getMillis();
     static void setMillisOffset(unsigned long offset);
+
+    static void setLedState(LedState ledState);
 };
 
 #endif

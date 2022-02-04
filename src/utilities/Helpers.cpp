@@ -45,3 +45,9 @@ void Helpers::setMillisOffset(unsigned long millisOffset)
     ESP.rtcUserMemoryWrite(0, (uint32_t *)&_millisOffset, sizeof(_millisOffset));
 #endif
 }
+
+void Helpers::setLedState(LedState ledState)
+{
+    pinMode(LED_BUILTIN, OUTPUT);
+    digitalWrite(LED_BUILTIN, (uint8_t)ledState);
+}

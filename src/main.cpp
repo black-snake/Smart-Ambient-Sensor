@@ -83,6 +83,8 @@ void handleMeasurementCallback(Measurement<float> temperature, Measurement<float
 
 void setup()
 {
+  Helpers::setLedState(Helpers::LedState::On);
+
   Serial.begin(115200);
 
   while (!Serial)
