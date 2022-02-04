@@ -2,7 +2,16 @@
 
 unsigned long Helpers::_millisOffset;
 
-LedFlasher Helpers::ledFlasher;
+bool Helpers::_ledState = false;
+
+Timer Helpers::ledFlasher = Timer(&Helpers::toggleLed);
+
+void Helpers::toggleLed()
+{
+    pinMode(LED_BUILTIN, OUTPUT);
+    _ledState = !_ledState;
+    digitalWrite(LED_BUILTIN, _ledState);
+}
 
 String Helpers::getChipId()
 {
@@ -46,4 +55,3 @@ void Helpers::setMillisOffset(unsigned long millisOffset)
 #ifdef ESP8266
     ESP.rtcUserMemoryWrite(0, (uint32_t *)&_millisOffset, sizeof(_millisOffset));
 #endif
-}
