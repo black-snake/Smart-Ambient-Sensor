@@ -36,14 +36,14 @@ AmbientSensorConfig::AmbientSensorConfig(const char *type, const char *temperatu
     switch (atoi(temperatureUnit))
     {
     case 1:
-        this->temperatureUnit = Celsius;
+        this->temperatureUnit = TemperatureUnit::Celsius;
         break;
     case 2:
-        this->temperatureUnit = Fahrenheit;
+        this->temperatureUnit = TemperatureUnit::Fahrenheit;
         break;
 
     default:
-        this->temperatureUnit = Kelvin;
+        this->temperatureUnit = TemperatureUnit::Kelvin;
         break;
     }
 
