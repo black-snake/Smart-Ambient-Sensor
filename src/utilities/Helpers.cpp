@@ -2,17 +2,6 @@
 
 unsigned long Helpers::_millisOffset;
 
-bool Helpers::_ledState = false;
-
-Timer Helpers::ledFlasher = Timer(&Helpers::toggleLed);
-
-void Helpers::toggleLed()
-{
-    pinMode(LED_BUILTIN, OUTPUT);
-    _ledState = !_ledState;
-    digitalWrite(LED_BUILTIN, _ledState);
-}
-
 String Helpers::getChipId()
 {
 #ifdef ESP32

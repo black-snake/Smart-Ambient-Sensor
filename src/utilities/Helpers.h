@@ -2,7 +2,6 @@
 #define Helpers_h
 
 #include <Arduino.h>
-#include "Timer.h"
 
 #ifdef ESP32
 #include <rom/rtc.h>
@@ -22,12 +21,7 @@ private:
     static unsigned long _millisOffset;
 #endif
 
-    static bool _ledState;
-    static void toggleLed();
-
 public:
-    static Timer ledFlasher;
-
     static String getChipId();
     static bool hasStartedFromDeepSleep();
     static unsigned long getMillis();
