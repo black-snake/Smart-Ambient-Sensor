@@ -166,8 +166,8 @@ void loop()
 
   Helpers::setMillisOffset(gAmbientSensorConfig.measurementIntervalInSeconds * 1000);
   Serial.println(F("Going into deep sleep..."));
-  // subtract 15 seconds from millis offset because this is rougly what the overhead to establish a communication takes until we can measure
-  ESP.deepSleep((gAmbientSensorConfig.measurementIntervalInSeconds - 15) * 1000000);
+  // subtract 10 seconds from millis offset because this is rougly what the overhead to establish a communication takes until we can measure
+  ESP.deepSleep((gAmbientSensorConfig.measurementIntervalInSeconds - 10) * 1000000);
   yield();
   Serial.println(F("Error: Deep sleep failed."));
 }
