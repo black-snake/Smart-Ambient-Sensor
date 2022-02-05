@@ -4,9 +4,17 @@
 
 unsigned long Helpers::_millisOffset;
 
-bool Helpers::_hasWokenUpFromDeepSleep = Helpers::getHasWokenUpFromDeepSleep();
+bool Helpers::_ledState = false;
 
-Led Helpers::led;
+Timer Helpers::ledFlasher = Timer(&Helpers::toggleLed);
+
+void Helpers::toggleLed()
+{
+    _ledState = !_ledState;
+    digitalWrite(LED_BUILTIN, _ledState);
+}
+
+bool Helpers::_hasWokenUpFromDeepSleep = Helpers::getHasWokenUpFromDeepSleep();
 
 bool Helpers::getHasWokenUpFromDeepSleep()
 {
@@ -21,9 +29,9 @@ bool Helpers::getHasWokenUpFromDeepSleep()
 
 void Helpers::init()
 {
-#ifdef ESP32
+    pinMode(LED_BUILTIN, OUTPUT);
 
-#else
+#ifdef ESP8266
     if (hasWokenUpFromDeepSleep())
     {
         ESP.rtcUserMemoryRead(RTC_MEMORY_OFFSET_MILLIS, (uint32_t *)&_millisOffset, sizeof(_millisOffset));

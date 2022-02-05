@@ -40,7 +40,7 @@ void handleConfigPortalCallback(bool success, WiFiConfig &wiFiConfig, std::map<c
   mqttConfig.host = String(configParameters["mqtt.host"]);
   mqttConfig.port = atoi(configParameters["mqtt.port"]);
   mqttConfig.clientId = String(configParameters["mqtt.clientId"]);
-  mqttConfig.topic = String(configParameters["mqtt.topic"]);
+  mqttConfig.baseTopic = String(configParameters["mqtt.baseTopic"]);
   mqttConfig.username = String(configParameters["mqtt.username"]);
   mqttConfig.password = String(configParameters["mqtt.password"]);
   pConfigManager->write<MqttConfig>(mqttConfig);
@@ -63,16 +63,8 @@ void handleMeasurementCallback(Measurement<float> temperature, Measurement<float
     return;
   }
 
-  StaticJsonDocument<192> doc;
-  JsonObject temperatureObj = doc.createNestedObject();
-  temperature.populateJsonObject(temperatureObj);
-  JsonObject humidityObj = doc.createNestedObject();
-  humidity.populateJsonObject(humidityObj);
-
-  String message;
-  serializeJson(doc, message);
-
-  pMqttClient->publish(message.c_str());
+  pMqttClient->publish(temperature.quantity, temperature.serialize());
+  pMqttClient->publish(humidity.quantity, humidity.serialize());
 
   pMqttClient->disconnect();
   pWiFiManager->disconnect();
@@ -82,7 +74,7 @@ void setup()
 {
   Helpers::init();
 
-  Helpers::led.set(Led::State::On);
+  Helpers::ledFlasher.start(250);
 
   Serial.begin(115200);
 
@@ -129,7 +121,7 @@ void setup()
     pWiFiManager->addConfigParameter("mqtt.host", "MQTT Host", "", 128, "maxlength='128' spellcheck='false' required");
     pWiFiManager->addConfigParameter("mqtt.port", "MQTT Port", "1883", 5, "type='number' min='0' max='65535' step='1' required");
     pWiFiManager->addConfigParameter("mqtt.clientId", "MQTT Client ID", "", 64, "maxlength='64' spellcheck='false' required");
-    pWiFiManager->addConfigParameter("mqtt.topic", "MQTT Topic", "", 128, "maxlength='128' spellcheck='false' required");
+    pWiFiManager->addConfigParameter("mqtt.baseTopic", "MQTT Base Topic", "", 128, "maxlength='128' spellcheck='false' required");
     pWiFiManager->addConfigParameter("mqtt.username", "MQTT Username", "", 32, "maxlength='32' spellcheck='false'");
     pWiFiManager->addConfigParameter("mqtt.password", "MQTT Password", "", 16, "type='password' maxlength='16'");
 
@@ -150,7 +142,7 @@ void setup()
 
 void loop()
 {
-  Helpers::led.toggle();
+  Helpers::ledFlasher.start(50);
 
   ResetDetector::process();
   pAmbientSensor->measure();
@@ -158,7 +150,7 @@ void loop()
   // return early to allow for disabling reset detection
   if (ResetDetector::isEnabled())
   {
-    delay(50);
+    delay(250);
     return;
   }
 

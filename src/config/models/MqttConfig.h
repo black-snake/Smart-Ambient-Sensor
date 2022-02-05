@@ -11,7 +11,7 @@ public:
     String host;
     uint16_t port = 1883;
     String clientId;
-    String topic;
+    String baseTopic;
     String username;
     String password;
 

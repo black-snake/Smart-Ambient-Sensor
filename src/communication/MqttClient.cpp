@@ -43,16 +43,7 @@ bool MqttClient::connect(uint8_t maxNoOfTries)
 
         if (_pubSubClient.connect(mqttConfig.clientId.c_str(), mqttConfig.username.c_str(), mqttConfig.password.c_str()))
         {
-            Serial.print(F("MQTT client successfully connected to: "));
-            Serial.println(mqttConfig.host);
-            return true;
-        }
-        else
-        {
-            Serial.print(F("MQTT client failed to connected to '"));
-            Serial.print(mqttConfig.host);
-            Serial.print(F("', status code from library: "));
-            Serial.println(_pubSubClient.state());
+            break;
         }
 
         if (noOfTries != maxNoOfTries)
@@ -65,7 +56,22 @@ bool MqttClient::connect(uint8_t maxNoOfTries)
         }
     } while (!isConnected() && noOfTries < maxNoOfTries);
 
-    return isConnected();
+    bool result = isConnected();
+
+    if (result)
+    {
+        Serial.print(F("MQTT client successfully connected to: "));
+        Serial.println(mqttConfig.host);
+    }
+    else
+    {
+        Serial.print(F("MQTT client failed to connected to '"));
+        Serial.print(mqttConfig.host);
+        Serial.print(F("', status code from library: "));
+        Serial.println(_pubSubClient.state());
+    }
+
+    return result;
 }
 
 bool MqttClient::disconnect()
@@ -81,14 +87,18 @@ bool MqttClient::isConnected()
     return _pubSubClient.connected();
 }
 
-bool MqttClient::publish(const char *message)
+bool MqttClient::publish(const String &subtopic, const String &message)
 {
+    String topic = mqttConfig.baseTopic.endsWith("/")
+                       ? mqttConfig.baseTopic + subtopic
+                       : mqttConfig.baseTopic + "/" + subtopic;
+
     Serial.print(F("MQTT client publishes in topic '"));
-    Serial.print(mqttConfig.topic);
+    Serial.print(topic);
     Serial.print(F("' the following message: "));
     Serial.println(message);
 
-    bool result = _pubSubClient.publish(mqttConfig.topic.c_str(), message, true);
+    bool result = _pubSubClient.publish(topic.c_str(), message.c_str(), true);
 
     Serial.println(result ? F("MQTT client successfully published the message.") : F("MQTT client failed to publish the message."));
 
