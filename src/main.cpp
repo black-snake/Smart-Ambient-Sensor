@@ -83,7 +83,7 @@ void handleMeasurementCallback(Measurement<float> temperature, Measurement<float
 
 void setup()
 {
-  Helpers::led.set(Led::State::On);
+  Helpers::ledFlasher.start(250);
 
   Serial.begin(115200);
 
@@ -157,7 +157,7 @@ void setup()
 
 void loop()
 {
-  Helpers::led.toggle();
+  Helpers::ledFlasher.start(50);
 
   pResetDetector->process();
   pAmbientSensor->measure();

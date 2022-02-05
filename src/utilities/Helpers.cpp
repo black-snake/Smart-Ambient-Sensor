@@ -2,7 +2,15 @@
 
 unsigned long Helpers::_millisOffset;
 
-Led Helpers::led;
+bool Helpers::_ledState = false;
+
+Timer Helpers::ledFlasher = Timer(&Helpers::toggleLed);
+
+void Helpers::toggleLed()
+{
+    _ledState = !_ledState;
+    digitalWrite(LED_BUILTIN, _ledState);
+}
 
 String Helpers::getChipId()
 {
