@@ -124,7 +124,7 @@ bool WiFiManager::reconnect(uint8_t maxNoOfTries)
     }
 
     WiFi.mode(WIFI_STA);
-    WiFi.begin(_lastWiFiCredential.ssid, _lastWiFiCredential.psk);
+    WiFi.begin(_lastWiFiCredential.ssid.c_str(), _lastWiFiCredential.psk.c_str());
 
     uint8_t noOfTries = 0;
     uint16_t delayMs = 2500;
