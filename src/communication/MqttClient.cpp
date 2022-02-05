@@ -2,10 +2,6 @@
 
 MqttClient::MqttClient(MqttConfig mqttConfig) : _pubSubClient(_wiFiClient), mqttConfig(mqttConfig)
 {
-    if (!mqttConfig.baseTopic.endsWith("/"))
-    {
-        mqttConfig.baseTopic += "/";
-    }
 }
 
 MqttClient::~MqttClient()
@@ -93,7 +89,9 @@ bool MqttClient::isConnected()
 
 bool MqttClient::publish(const String &subtopic, const String &message)
 {
-    String topic = mqttConfig.baseTopic + subtopic;
+    String topic = mqttConfig.baseTopic.endsWith("/")
+                       ? mqttConfig.baseTopic + subtopic
+                       : mqttConfig.baseTopic + "/" + subtopic;
 
     Serial.print(F("MQTT client publishes in topic '"));
     Serial.print(topic);
