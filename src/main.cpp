@@ -15,14 +15,15 @@
 #include <communication/MqttClient.h>
 #include <sensors/AmbientSensor.h>
 
-ResetDetector *pResetDetector;
 ConfigManager *pConfigManager;
+
+WiFiConfig gWiFiConfig;
 WiFiManager *pWiFiManager;
 
 AmbientSensorConfig gAmbientSensorConfig;
-MqttConfig gMqttConfig;
-
 AmbientSensor *pAmbientSensor;
+
+MqttConfig gMqttConfig;
 MqttClient *pMqttClient;
 
 void handleConfigPortalCallback(bool success, WiFiConfig &wiFiConfig, std::map<const char *, const char *> &configParameters)
@@ -44,18 +45,14 @@ void handleConfigPortalCallback(bool success, WiFiConfig &wiFiConfig, std::map<c
   mqttConfig.password = String(configParameters["mqtt.password"]);
   pConfigManager->write<MqttConfig>(mqttConfig);
 
-  // workaround because WiFi manager sometimes can't properly connect to WiFi after config portal
-  if (!pWiFiManager->isConnected())
-  {
-    ResetDetector::clear();
-    ESP.restart();
-  }
+  ResetDetector::clear();
+  ESP.restart();
 }
 
 void handleMeasurementCallback(Measurement<float> temperature, Measurement<float> humidity)
 {
   // return early if WiFi connection is not established and cannot be established
-  if (!pWiFiManager->isConnected() && !pWiFiManager->tryAutoConnect(3))
+  if (!pWiFiManager->isConnected() && !pWiFiManager->reconnect(3))
   {
     return;
   }
@@ -83,6 +80,8 @@ void handleMeasurementCallback(Measurement<float> temperature, Measurement<float
 
 void setup()
 {
+  Helpers::init();
+
   Helpers::led.set(Led::State::On);
 
   Serial.begin(115200);
@@ -103,40 +102,38 @@ void setup()
     ESP.restart();
   }
 
-  if (!Helpers::hasStartedFromDeepSleep())
+  if (!Helpers::hasWokenUpFromDeepSleep())
   {
     ResetDetector::go(15 * 1000);
   }
 
-  WiFiConfig wiFiConfig;
-  if (pConfigManager->exists(wiFiConfig))
+  if (pConfigManager->exists(gWiFiConfig))
   {
-    pConfigManager->read(wiFiConfig);
+    pConfigManager->read(gWiFiConfig);
   }
 
-  WiFiManager wiFiManager(Helpers::getChipId(), wiFiConfig);
-  pWiFiManager = &wiFiManager;
+  pWiFiManager = new WiFiManager(Helpers::getChipId(), gWiFiConfig);
 
-  bool result = wiFiManager.tryAutoConnect();
+  bool result = pWiFiManager->tryAutoConnect();
 
   if (!result)
   {
-    wiFiManager.setConfigPortalCallback(&handleConfigPortalCallback);
+    pWiFiManager->setConfigPortalCallback(&handleConfigPortalCallback);
 
     // sensor
-    wiFiManager.addConfigParameter("sensor.type", "Sensor Type", "22", 2, "maxlength='2' spellcheck='false' required");
-    wiFiManager.addConfigParameter("sensor.temperatureUnit", "Temperature Unit", "1", 1, "maxlength='1' spellcheck='false' required");
-    wiFiManager.addConfigParameter("sensor.measurementIntervalInSeconds", "Measurement Interval (s)", "30", 5, "type='number' min='15' max='1800' step='1' required");
+    pWiFiManager->addConfigParameter("sensor.type", "Sensor Type", "22", 2, "maxlength='2' spellcheck='false' required");
+    pWiFiManager->addConfigParameter("sensor.temperatureUnit", "Temperature Unit", "1", 1, "maxlength='1' spellcheck='false' required");
+    pWiFiManager->addConfigParameter("sensor.measurementIntervalInSeconds", "Measurement Interval (s)", "30", 5, "type='number' min='15' max='1800' step='1' required");
 
     // MQTT
-    wiFiManager.addConfigParameter("mqtt.host", "MQTT Host", "", 128, "maxlength='128' spellcheck='false' required");
-    wiFiManager.addConfigParameter("mqtt.port", "MQTT Port", "1883", 5, "type='number' min='0' max='65535' step='1' required");
-    wiFiManager.addConfigParameter("mqtt.clientId", "MQTT Client ID", "", 64, "maxlength='64' spellcheck='false' required");
-    wiFiManager.addConfigParameter("mqtt.topic", "MQTT Topic", "", 128, "maxlength='128' spellcheck='false' required");
-    wiFiManager.addConfigParameter("mqtt.username", "MQTT Username", "", 32, "maxlength='32' spellcheck='false'");
-    wiFiManager.addConfigParameter("mqtt.password", "MQTT Password", "", 16, "type='password' maxlength='16'");
+    pWiFiManager->addConfigParameter("mqtt.host", "MQTT Host", "", 128, "maxlength='128' spellcheck='false' required");
+    pWiFiManager->addConfigParameter("mqtt.port", "MQTT Port", "1883", 5, "type='number' min='0' max='65535' step='1' required");
+    pWiFiManager->addConfigParameter("mqtt.clientId", "MQTT Client ID", "", 64, "maxlength='64' spellcheck='false' required");
+    pWiFiManager->addConfigParameter("mqtt.topic", "MQTT Topic", "", 128, "maxlength='128' spellcheck='false' required");
+    pWiFiManager->addConfigParameter("mqtt.username", "MQTT Username", "", 32, "maxlength='32' spellcheck='false'");
+    pWiFiManager->addConfigParameter("mqtt.password", "MQTT Password", "", 16, "type='password' maxlength='16'");
 
-    result = wiFiManager.startConfigPortal(Helpers::getChipId().c_str());
+    result = pWiFiManager->startConfigPortal(Helpers::getChipId().c_str());
   }
 
   pConfigManager->read(gAmbientSensorConfig);
@@ -149,7 +146,6 @@ void setup()
   // usually, object instances created with keyword 'new' need to be deleted manually
   // however, since this object instance is need for the entire lifetime of the program, it is useless to declare memory reclaiming for it
   pMqttClient = new MqttClient(gMqttConfig);
-  pMqttClient->connect();
 }
 
 void loop()
