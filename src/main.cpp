@@ -158,7 +158,7 @@ void loop()
   // return early to allow for disabling reset detection
   if (ResetDetector::isEnabled())
   {
-    delay(50);
+    delay(250);
     return;
   }
 
