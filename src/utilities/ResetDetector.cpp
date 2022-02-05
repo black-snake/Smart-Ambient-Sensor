@@ -1,13 +1,16 @@
 #include "ResetDetector.h"
 
-ResetDetector::ResetDetector(ConfigManager *pConfigManager)
-{
-    this->_pConfigManager = pConfigManager;
-}
+#define RESET_MAGIC_NUMBER 1234567890
 
-ResetDetector::~ResetDetector()
-{
-}
+unsigned long ResetDetector::_end = 0;
+
+bool ResetDetector::_isEnabled = false;
+
+#ifdef ESP32
+unsigned long ResetDetector::_value = 0;
+#else
+#define RTC_MEMORY_OFFSET_RESET_DETECTOR 1
+#endif
 
 bool ResetDetector::isEnabled()
 {
@@ -16,35 +19,49 @@ bool ResetDetector::isEnabled()
 
 bool ResetDetector::shouldReset()
 {
-    return _pConfigManager->exists(_resetConfig);
+#ifdef ESP32
+    return _value == RESET_MAGIC_NUMBER;
+#else
+    unsigned long value = 0;
+
+    bool result = ESP.rtcUserMemoryRead(RTC_MEMORY_OFFSET_RESET_DETECTOR, (uint32_t *)&value, sizeof(value));
+
+    return result && value == RESET_MAGIC_NUMBER;
+#endif
 }
 
-void ResetDetector::start(unsigned long timeout)
+void ResetDetector::go(unsigned long timeout)
 {
-    if (_isEnabled)
-    {
-        return;
-    }
-
     _end = Helpers::getMillis() + timeout;
 
-    if (_pConfigManager->write(_resetConfig))
+#ifdef ESP32
+    _value = RESET_MAGIC_NUMBER;
+    _isEnabled = true;
+#else
+    unsigned long value = RESET_MAGIC_NUMBER;
+    bool result = ESP.rtcUserMemoryWrite(RTC_MEMORY_OFFSET_RESET_DETECTOR, (uint32_t *)&value, sizeof(value));
+
+    if (result)
     {
         _isEnabled = true;
     }
+#endif
 }
 
-void ResetDetector::stop()
+void ResetDetector::clear()
 {
-    if (!_isEnabled)
-    {
-        return;
-    }
+#ifdef ESP32
+    _value = 0;
+    _isEnabled = false;
+#else
+    unsigned long value = 0;
+    bool result = ESP.rtcUserMemoryWrite(RTC_MEMORY_OFFSET_RESET_DETECTOR, (uint32_t *)&value, sizeof(value));
 
-    if (_pConfigManager->remove(_resetConfig))
+    if (result)
     {
         _isEnabled = false;
     }
+#endif
 }
 
 void ResetDetector::process()
@@ -56,6 +73,6 @@ void ResetDetector::process()
 
     if (Helpers::getMillis() > _end)
     {
-        stop();
+        clear();
     }
 }

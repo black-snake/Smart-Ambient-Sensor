@@ -22,15 +22,21 @@ private:
     static unsigned long _millisOffset;
 #endif
 
+    static bool _hasWokenUpFromDeepSleep;
+
+    static bool getHasWokenUpFromDeepSleep();
+
 public:
     static Led led;
 
+    static void init();
+
     static String getChipId();
 
-    static bool hasStartedFromDeepSleep();
+    static bool hasWokenUpFromDeepSleep();
 
-    static unsigned long getMillis();
     static void setMillisOffset(unsigned long offset);
+    static unsigned long getMillis();
 };
 
 #endif

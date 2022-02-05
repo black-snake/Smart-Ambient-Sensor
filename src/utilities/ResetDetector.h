@@ -2,27 +2,24 @@
 #define ResetDetector_h
 
 #include <Arduino.h>
-#include "../config/models/ResetConfig.h"
-#include "../config/ConfigManager.h"
 #include "Helpers.h"
 
 class ResetDetector
 {
 private:
-    unsigned long _end = 0;
-    bool _isEnabled = false;
-    ConfigManager *_pConfigManager = nullptr;
-    ResetConfig _resetConfig;
+    static unsigned long _end;
+    static bool _isEnabled;
+
+#ifdef ESP32
+    RTC_DATA_ATTR static unsigned long _value;
+#endif
 
 public:
-    ResetDetector(ConfigManager *pConfigManager);
-    ~ResetDetector();
-
-    bool isEnabled();
-    bool shouldReset();
-    void start(unsigned long timeout = 10 * 1000);
-    void stop();
-    void process();
+    static bool isEnabled();
+    static bool shouldReset();
+    static void go(unsigned long timeout = 10 * 1000);
+    static void clear();
+    static void process();
 };
 
 #endif
