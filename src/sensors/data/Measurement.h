@@ -14,7 +14,7 @@ public:
     T value;
     String unit;
 
-    JsonObject populateJsonObject(JsonObject &jsonObject);
+    String serialize();
 };
 
 template <class T>
@@ -23,13 +23,17 @@ Measurement<T>::Measurement()
 }
 
 template <class T>
-JsonObject Measurement<T>::populateJsonObject(JsonObject &jsonObject)
+String Measurement<T>::serialize()
 {
-    jsonObject["quantity"] = quantity;
-    jsonObject["value"] = value;
-    jsonObject["unit"] = unit;
+    StaticJsonDocument<96> doc;
 
-    return jsonObject;
+    doc["quantity"] = quantity;
+    doc["value"] = value;
+    doc["unit"] = unit;
+
+    String output;
+    serializeJson(doc, output);
+    return output;
 }
 
 #endif

@@ -16,7 +16,7 @@ String MqttConfig::serialize()
     doc["host"] = host;
     doc["port"] = port;
     doc["clientId"] = clientId;
-    doc["topic"] = topic;
+    doc["baseTopic"] = baseTopic;
     doc["username"] = username;
     doc["password"] = password;
 
@@ -41,7 +41,7 @@ MqttConfig MqttConfig::deserialize(const char *content)
     mqttConfig.host = doc["host"].as<String>();
     mqttConfig.port = doc["port"];
     mqttConfig.clientId = doc["clientId"].as<String>();
-    mqttConfig.topic = doc["topic"].as<String>();
+    mqttConfig.baseTopic = doc["baseTopic"].as<String>();
     mqttConfig.username = doc["username"].as<String>();
     mqttConfig.password = doc["password"].as<String>();
 

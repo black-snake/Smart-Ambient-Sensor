@@ -28,7 +28,7 @@ public:
     bool connect(uint8_t maxNoOfTries = 15);
     bool disconnect();
     bool isConnected();
-    bool publish(const char *message);
+    bool publish(const String &subtopic, const String &message);
 };
 
 #endif
