@@ -29,6 +29,8 @@ bool Helpers::getHasWokenUpFromDeepSleep()
 
 void Helpers::init()
 {
+    pinMode(LED_BUILTIN, OUTPUT);
+
 #ifdef ESP32
 
 #else

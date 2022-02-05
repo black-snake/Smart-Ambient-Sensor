@@ -23,11 +23,9 @@ private:
 #endif
 
     static bool _ledState;
-
-    static bool _hasWokenUpFromDeepSleep;
-
     static void toggleLed();
 
+    static bool _hasWokenUpFromDeepSleep;
     static bool getHasWokenUpFromDeepSleep();
 
 public:
