@@ -40,13 +40,17 @@ WiFiManager::WiFiManager(const String &hostname, const WiFiConfig &wiFiConfig)
             continue;
         }
 
-        Serial.print(F("SSID added for connection: "));
-        Serial.println(wiFiCredential.ssid);
-        Serial.print(F("PSK added for connection: "));
-        Serial.println(wiFiCredential.psk);
+        bool result = _wifiMulti.addAP(wiFiCredential.ssid.c_str(), wiFiCredential.psk.c_str());
 
-        _wifiMulti.addAP(wiFiCredential.ssid.c_str(), wiFiCredential.psk.c_str());
-        ++_noOfWiFiCredentials;
+        if (result)
+        {
+            ++_noOfWiFiCredentials;
+
+            Serial.print(F("SSID added for connection: "));
+            Serial.println(wiFiCredential.ssid);
+            Serial.print(F("PSK added for connection: "));
+            Serial.println(wiFiCredential.psk);
+        }
     }
 }
 
@@ -54,6 +58,11 @@ WiFiManager::~WiFiManager()
 {
     // pointers in _configParameters must NOT be freed because this is -- strangely -- handled by ESPAsync_WiFiManager!
     // although ESPAsync_WiFiManager did not create the objects, it "takes care" of their disposal
+}
+
+bool WiFiManager::isConnected()
+{
+    return WiFi.status() == WL_CONNECTED;
 }
 
 bool WiFiManager::tryAutoConnect(uint8_t maxNoOfTries)
@@ -98,17 +107,62 @@ bool WiFiManager::tryAutoConnect(uint8_t maxNoOfTries)
 
     printWiFiDetails();
 
+    _lastWiFiCredential.ssid = String(WiFi.SSID());
+    _lastWiFiCredential.psk = String(WiFi.psk());
+
     return status == WL_CONNECTED;
+}
+
+bool WiFiManager::reconnect(uint8_t maxNoOfTries)
+{
+    Serial.println(F("Trying connect to WiFi."));
+
+    if (isConnected())
+    {
+        Serial.println(F("WiFi is already connected."));
+        return true;
+    }
+
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(_lastWiFiCredential.ssid.c_str(), _lastWiFiCredential.psk.c_str());
+
+    uint8_t noOfTries = 0;
+    uint16_t delayMs = 2500;
+    do
+    {
+        ++noOfTries;
+        Serial.print(F("Trying to connect to WiFi, #"));
+        Serial.print(noOfTries);
+        Serial.print(F(" of "));
+        Serial.println(maxNoOfTries);
+
+        if (isConnected())
+        {
+            Serial.println(F("Successfully connected to WiFi."));
+            return true;
+        }
+        else
+        {
+            Serial.println(F("Failed to connect to WiFi."));
+        }
+
+        if (noOfTries != maxNoOfTries)
+        {
+            delayMs *= 2;
+            Serial.print(F("Trying to reconnect to WiFi in "));
+            Serial.print(delayMs / 1000.f);
+            Serial.println(F(" s"));
+            delay(delayMs);
+        }
+    } while (!isConnected() && noOfTries < maxNoOfTries);
+
+    return isConnected();
 }
 
 bool WiFiManager::disconnect()
 {
+    Serial.println(F("WiFi requested to disconnect."));
     return WiFi.disconnect();
-}
-
-bool WiFiManager::isConnected()
-{
-    return WiFi.status() == WL_CONNECTED;
 }
 
 void WiFiManager::addConfigParameter(const char *id, const char *placeholder, const char *defaultValue, int length, const char *customHtml, LabelPlacement labelPlacement)

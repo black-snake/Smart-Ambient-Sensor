@@ -10,7 +10,7 @@ MqttClient::~MqttClient()
 
 bool MqttClient::connect(uint8_t maxNoOfTries)
 {
-    if (_pubSubClient.connected())
+    if (isConnected())
     {
         Serial.println(F("MQTT client is already connected."));
         return true;
@@ -32,6 +32,7 @@ bool MqttClient::connect(uint8_t maxNoOfTries)
     _pubSubClient.setServer(_ipAddress, mqttConfig.port);
 
     uint8_t noOfTries = 0;
+    uint16_t delayMs = 2500;
     do
     {
         ++noOfTries;
@@ -54,11 +55,14 @@ bool MqttClient::connect(uint8_t maxNoOfTries)
             Serial.println(_pubSubClient.state());
         }
 
-        uint16_t delayMs = 5000;
-        Serial.print(F("MQTT client tries to reconnect in "));
-        Serial.print(delayMs / 1000);
-        Serial.println(F(" s"));
-        delay(delayMs);
+        if (noOfTries != maxNoOfTries)
+        {
+            delayMs *= 2;
+            Serial.print(F("MQTT client tries to reconnect in "));
+            Serial.print(delayMs / 1000.f);
+            Serial.println(F(" s"));
+            delay(delayMs);
+        }
     } while (!isConnected() && noOfTries < maxNoOfTries);
 
     return isConnected();
@@ -74,11 +78,7 @@ bool MqttClient::disconnect()
 
 bool MqttClient::isConnected()
 {
-    bool result = _pubSubClient.connected();
-
-    Serial.println(result ? F("MQTT client is connected.") : F("MQTT client is disconnected."));
-
-    return result;
+    return _pubSubClient.connected();
 }
 
 bool MqttClient::publish(const char *message)

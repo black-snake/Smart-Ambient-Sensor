@@ -36,6 +36,8 @@ private:
     using ConfigPortalCallback = void (*)(bool success, WiFiConfig &wiFiConfig, std::map<const char *, const char *> &configParameters);
     ConfigPortalCallback _configPortalCallback = nullptr;
 
+    WiFiCredential _lastWiFiCredential;
+
     void printWiFiDetails();
 
 public:
@@ -51,9 +53,11 @@ public:
 
     String hostname;
 
-    bool tryAutoConnect(uint8_t maxNoOfTries = 20);
-    bool disconnect();
     bool isConnected();
+    bool tryAutoConnect(uint8_t maxNoOfTries = 20);
+    bool reconnect(uint8_t maxNoOfTries = 15);
+    bool disconnect();
+
     void addConfigParameter(const char *id, const char *placeholder, const char *defaultValue, int length, const char *customHtml = "", LabelPlacement labelPlacement = Before);
     void setConfigPortalCallback(const ConfigPortalCallback configPortalCallback);
     bool startConfigPortal(const char *apSsid, unsigned long timeoutSeconds = 900);

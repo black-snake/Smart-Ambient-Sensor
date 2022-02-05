@@ -23,18 +23,24 @@ private:
 #endif
 
     static bool _ledState;
-    
+
+    static bool _hasWokenUpFromDeepSleep;
+
     static void toggleLed();
+
+    static bool getHasWokenUpFromDeepSleep();
 
 public:
     static Timer ledFlasher;
 
+    static void init();
+
     static String getChipId();
 
-    static bool hasStartedFromDeepSleep();
+    static bool hasWokenUpFromDeepSleep();
 
-    static unsigned long getMillis();
     static void setMillisOffset(unsigned long offset);
+    static unsigned long getMillis();
 };
 
 #endif
