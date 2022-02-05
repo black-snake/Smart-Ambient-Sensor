@@ -31,9 +31,7 @@ void Helpers::init()
 {
     pinMode(LED_BUILTIN, OUTPUT);
 
-#ifdef ESP32
-
-#else
+#ifdef ESP8266
     if (hasWokenUpFromDeepSleep())
     {
         ESP.rtcUserMemoryRead(RTC_MEMORY_OFFSET_MILLIS, (uint32_t *)&_millisOffset, sizeof(_millisOffset));
