@@ -138,12 +138,7 @@ bool WiFiManager::reconnect(uint8_t maxNoOfTries)
 
         if (isConnected())
         {
-            Serial.println(F("Successfully connected to WiFi."));
-            return true;
-        }
-        else
-        {
-            Serial.println(F("Failed to connect to WiFi."));
+            break;
         }
 
         if (noOfTries != maxNoOfTries)
@@ -156,7 +151,18 @@ bool WiFiManager::reconnect(uint8_t maxNoOfTries)
         }
     } while (!isConnected() && noOfTries < maxNoOfTries);
 
-    return isConnected();
+    bool result = isConnected();
+
+    if (result)
+    {
+        Serial.println(F("Successfully connected to WiFi."));
+    }
+    else
+    {
+        Serial.println(F("Failed to connect to WiFi."));
+    }
+
+    return result;
 }
 
 bool WiFiManager::disconnect()

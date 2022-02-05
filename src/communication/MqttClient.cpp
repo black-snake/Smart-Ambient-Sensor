@@ -43,16 +43,7 @@ bool MqttClient::connect(uint8_t maxNoOfTries)
 
         if (_pubSubClient.connect(mqttConfig.clientId.c_str(), mqttConfig.username.c_str(), mqttConfig.password.c_str()))
         {
-            Serial.print(F("MQTT client successfully connected to: "));
-            Serial.println(mqttConfig.host);
-            return true;
-        }
-        else
-        {
-            Serial.print(F("MQTT client failed to connected to '"));
-            Serial.print(mqttConfig.host);
-            Serial.print(F("', status code from library: "));
-            Serial.println(_pubSubClient.state());
+            break;
         }
 
         if (noOfTries != maxNoOfTries)
@@ -65,7 +56,22 @@ bool MqttClient::connect(uint8_t maxNoOfTries)
         }
     } while (!isConnected() && noOfTries < maxNoOfTries);
 
-    return isConnected();
+    bool result = isConnected();
+
+    if (result)
+    {
+        Serial.print(F("MQTT client successfully connected to: "));
+        Serial.println(mqttConfig.host);
+    }
+    else
+    {
+        Serial.print(F("MQTT client failed to connected to '"));
+        Serial.print(mqttConfig.host);
+        Serial.print(F("', status code from library: "));
+        Serial.println(_pubSubClient.state());
+    }
+
+    return result;
 }
 
 bool MqttClient::disconnect()
