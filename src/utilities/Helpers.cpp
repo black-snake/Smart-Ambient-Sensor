@@ -1,5 +1,7 @@
 #include "Helpers.h"
 
+#define RTC_MEMORY_OFFSET_MILLIS 0
+
 unsigned long Helpers::_millisOffset;
 
 Led Helpers::led;
@@ -32,7 +34,7 @@ unsigned long Helpers::getMillis()
 #ifdef ESP8266
     if (hasStartedFromDeepSleep())
     {
-        ESP.rtcUserMemoryRead(0, (uint32_t *)&_millisOffset, sizeof(_millisOffset));
+        ESP.rtcUserMemoryRead(RTC_MEMORY_OFFSET_MILLIS, (uint32_t *)&_millisOffset, sizeof(_millisOffset));
     }
 #endif
 
@@ -44,6 +46,6 @@ void Helpers::setMillisOffset(unsigned long millisOffset)
     _millisOffset = getMillis() + millisOffset;
 
 #ifdef ESP8266
-    ESP.rtcUserMemoryWrite(0, (uint32_t *)&_millisOffset, sizeof(_millisOffset));
+    ESP.rtcUserMemoryWrite(RTC_MEMORY_OFFSET_MILLIS, (uint32_t *)&_millisOffset, sizeof(_millisOffset));
 #endif
 }
