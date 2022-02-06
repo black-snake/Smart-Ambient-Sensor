@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: break if not run on master branch
-        if: ${{ github.base_ref == 'main' }}
+        if: ${{ github.base_ref == 'master' }}
         run: exit -1
       - uses: actions/checkout@v2
       - name: pip caching
