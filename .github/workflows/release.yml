@@ -35,9 +35,10 @@ jobs:
         run: pio run
       - name: zip artifacts
         run: |
+          mkdir ~/artifacts
           for directory in */ ; do
             NAME=$(basename $directory)
-            zip ~/artifacts/${NAME}.zip ${directory}*.bin
+            zip ~/artifacts/smart-ambient-sensor_${NAME}-${GITHUB_REF_NAME}.zip ${directory}*.bin
           done
       - name: upload artifacts
         uses: actions/upload-artifact@v2
@@ -59,4 +60,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: ~/artifacts/*.zip
-          prerelease: true
+          fail_on_unmatched_files: true
+          draft: false
+          prerelease: ${{ startsWith(github.ref_name, '0') }}
+          generate_release_notes: true
