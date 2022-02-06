@@ -52,5 +52,5 @@ jobs:
       - name: create release
         uses: softprops/action-gh-release@v1
         with:
-          files: ~/artifacts/.pio/build/*/firmware.*
+          files: ~/artifacts/*/firmware.*
           prerelease: true
