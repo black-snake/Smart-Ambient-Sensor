@@ -1,0 +1,67 @@
+name: PlatformIO release
+
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: break if not run on master branch
+        if: ${{ github.base_ref == 'master' }}
+        run: exit -1
+      - uses: actions/checkout@v2
+      - name: pip caching
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      - name: PlatformIO caching
+        uses: actions/cache@v2
+        with:
+          path: ~/.platformio
+          key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
+      - name: Python setup
+        uses: actions/setup-python@v2
+      - name: PlatformIO installation
+        run: |
+          python -m pip install --upgrade pip
+          pip install --upgrade platformio
+      - name: PlatformIO run
+        run: pio run
+      - name: zip artifacts
+        working-directory: ./.pio/build
+        run: |
+          mkdir ~/artifacts
+          for directory in */ ; do
+            NAME=$(basename $directory)
+            zip ~/artifacts/smart-ambient-sensor_${GITHUB_REF_NAME}_${NAME}.zip ${directory}*.bin
+          done
+      - name: upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: firmware-binaries
+          path: ~/artifacts/*.zip
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: firmware-binaries
+          path: ./artifacts
+      - name: ls for artifact directories
+        run: ls -ahlR ./artifacts
+      - name: create release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ./artifacts/*.zip
+          fail_on_unmatched_files: true
+          draft: false
+          prerelease: ${{ startsWith(github.ref_name, '0') }}
+          generate_release_notes: true
