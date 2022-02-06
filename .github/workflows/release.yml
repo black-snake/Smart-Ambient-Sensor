@@ -39,7 +39,7 @@ jobs:
           mkdir ~/artifacts
           for directory in */ ; do
             NAME=$(basename $directory)
-            zip ~/artifacts/smart-ambient-sensor_${NAME}-${GITHUB_REF_NAME}.zip ${directory}*.bin
+            zip ~/artifacts/smart-ambient-sensor_${GITHUB_REF_NAME}_${NAME}.zip ${directory}*.bin
           done
       - name: upload artifacts
         uses: actions/upload-artifact@v2
@@ -54,13 +54,13 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: firmware-binaries
-          path: ~/artifacts
-      - name: ls for artifact directors
-        run: ls -ahlR ~/artifacts
+          path: ./artifacts
+      - name: ls for artifact directories
+        run: ls -ahlR ./artifacts
       - name: create release
         uses: softprops/action-gh-release@v1
         with:
-          files: ~/artifacts/*.zip
+          files: ./artifacts/*.zip
           fail_on_unmatched_files: true
           draft: false
           prerelease: ${{ startsWith(github.ref_name, '0') }}
