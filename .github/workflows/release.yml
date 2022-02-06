@@ -46,8 +46,11 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: firmwares
+          path: ~/artifacts
+      - name: ls for artifact directors
+        run: ls -ahlR
       - name: create release
         uses: softprops/action-gh-release@v1
         with:
-          files: .pio/build/*/firmware.*
+          files: ~/artifacts/.pio/build/*/firmware.*
           prerelease: true
