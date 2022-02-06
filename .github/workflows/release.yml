@@ -48,7 +48,7 @@ jobs:
           name: firmwares
           path: ~/artifacts
       - name: ls for artifact directors
-        run: ls -ahlR
+        run: ls -ahlR ~/artifacts
       - name: create release
         uses: softprops/action-gh-release@v1
         with:
