@@ -33,24 +33,30 @@ jobs:
           pip install --upgrade platformio
       - name: PlatformIO run
         run: pio run
-      - name: upload artifacts (firmware files)
+      - name: zip artifacts
+        run: |
+          for directory in */ ; do
+            NAME=$(basename $directory)
+            zip ~/artifacts/${NAME}.zip ${directory}*.bin
+          done
+      - name: upload artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: firmwares
-          path: .pio/build/*/firmware.*
+          name: firmware-binaries
+          path: ~/artifacts/*.zip
   release:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: download artifacts (firmware files)
+      - name: download artifacts
         uses: actions/download-artifact@v2
         with:
-          name: firmwares
+          name: firmware-binaries
           path: ~/artifacts
       - name: ls for artifact directors
         run: ls -ahlR ~/artifacts
       - name: create release
         uses: softprops/action-gh-release@v1
         with:
-          files: ~/artifacts/*
+          files: ~/artifacts/*.zip
           prerelease: true
