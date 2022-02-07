@@ -2,6 +2,7 @@
 #define WiFiConfig_h
 
 #include "Config.h"
+#include "IPAddress.h"
 
 // TODO: implement static IP configuration
 struct WiFiCredential
@@ -20,6 +21,12 @@ public:
     WiFiConfig();
 
     std::vector<WiFiCredential> credentials;
+
+    IPAddress ip;
+    IPAddress gateway;
+    IPAddress subnet;
+    IPAddress dns1;
+    IPAddress dns2;
 
     const char *getFileName();
     String serialize();

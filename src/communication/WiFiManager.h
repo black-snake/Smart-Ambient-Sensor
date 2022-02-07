@@ -16,6 +16,7 @@
 
 #define USE_AVAILABLE_PAGES false
 #define USE_ESP_WIFIMANAGER_NTP false
+#define USE_CONFIGURABLE_DNS true
 #define _ESPASYNC_WIFIMGR_LOGLEVEL_ 4
 
 #include <ESPAsync_WiFiManager.hpp>
@@ -39,6 +40,7 @@ private:
     WiFiCredential _lastWiFiCredential;
 
     void printWiFiDetails();
+    void configureWiFi();
 
 public:
     enum LabelPlacement
