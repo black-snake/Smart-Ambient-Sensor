@@ -32,6 +32,15 @@ WiFiManager::WiFiManager(const String &hostname, const WiFiConfig &wiFiConfig)
     this->hostname = hostname;
     WiFi.setHostname(this->hostname.c_str());
 
+#ifdef ESP32
+    if (wiFiConfig.ip.toString() == "0.0.0.0")
+#else
+    if (wiFiConfig.ip.isSet())
+#endif
+    {
+        WiFi.config(wiFiConfig.ip, wiFiConfig.gateway, wiFiConfig.subnet, wiFiConfig.dns1, wiFiConfig.dns2);
+    }
+
     for (WiFiCredential wiFiCredential : wiFiConfig.credentials)
     {
         if (wiFiCredential.ssid == NULL || wiFiCredential.ssid[0] == '\0')
@@ -219,6 +228,14 @@ bool WiFiManager::startConfigPortal(const char *apSsid, unsigned long timeoutSec
     }
 
     WiFiConfig wiFiConfig;
+
+    WiFi_STA_IPConfig staConfig;
+    ESPAsync_wifiManager.getSTAStaticIPConfig(staConfig);
+    wiFiConfig.ip = staConfig._sta_static_ip;
+    wiFiConfig.gateway = staConfig._sta_static_gw;
+    wiFiConfig.subnet = staConfig._sta_static_sn;
+    wiFiConfig.dns1 = staConfig._sta_static_dns1;
+    wiFiConfig.dns2 = staConfig._sta_static_dns2;
 
     wiFiConfig.credentials.push_back(WiFiCredential(ESPAsync_wifiManager.getSSID(), ESPAsync_wifiManager.getPW()));
     wiFiConfig.credentials.push_back(WiFiCredential(ESPAsync_wifiManager.getSSID1(), ESPAsync_wifiManager.getPW1()));

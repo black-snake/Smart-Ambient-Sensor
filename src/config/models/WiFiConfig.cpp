@@ -22,7 +22,13 @@ const char *WiFiConfig::getFileName()
 
 String WiFiConfig::serialize()
 {
-    StaticJsonDocument<512> doc;
+    StaticJsonDocument<1024> doc;
+
+    doc["ip"] = ip.toString();
+    doc["gateway"] = gateway.toString();
+    doc["subnet"] = subnet.toString();
+    doc["dns1"] = dns1.toString();
+    doc["dns2"] = dns2.toString();
 
     JsonArray credentials = doc.createNestedArray("credentials");
 
@@ -51,6 +57,12 @@ WiFiConfig WiFiConfig::deserialize(const char *content)
     }
 
     WiFiConfig wiFiConfig;
+
+    wiFiConfig.ip.fromString(doc["ip"].as<String>());
+    wiFiConfig.gateway.fromString(doc["gateway"].as<String>());
+    wiFiConfig.subnet.fromString(doc["subnet"].as<String>());
+    wiFiConfig.dns1.fromString(doc["dns1"].as<String>());
+    wiFiConfig.dns2.fromString(doc["dns2"].as<String>());
 
     for (JsonObject obj : doc["credentials"].as<JsonArray>())
     {
