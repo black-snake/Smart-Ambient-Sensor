@@ -203,11 +203,11 @@ bool WiFiManager::startConfigPortal(const char *apSsid, unsigned long timeoutSec
     ESPAsync_wifiManager.setConfigPortalChannel(0); // 0 = random
 
     WiFi_STA_IPConfig staConfig;
-    staConfig._sta_static_ip = IPAddress(0);
-    staConfig._sta_static_gw = IPAddress(0);
-    staConfig._sta_static_sn = IPAddress(0);
-    staConfig._sta_static_dns1 = IPAddress(0);
-    staConfig._sta_static_dns2 = IPAddress(0);
+    staConfig._sta_static_ip = IPAddress((uint32_t)0);
+    staConfig._sta_static_gw = IPAddress((uint32_t)0);
+    staConfig._sta_static_sn = IPAddress((uint32_t)0);
+    staConfig._sta_static_dns1 = IPAddress((uint32_t)0);
+    staConfig._sta_static_dns2 = IPAddress((uint32_t)0);
     ESPAsync_wifiManager.setSTAStaticIPConfig(staConfig);
 
     for (ESPAsync_WMParameter *configParameter : _configParameters)
