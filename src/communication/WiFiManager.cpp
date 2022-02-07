@@ -32,7 +32,11 @@ WiFiManager::WiFiManager(const String &hostname, const WiFiConfig &wiFiConfig)
     this->hostname = hostname;
     WiFi.setHostname(this->hostname.c_str());
 
+#ifdef ESP32
+    if (wiFiConfig.ip.toString() == "0.0.0.0")
+#else
     if (wiFiConfig.ip.isSet())
+#endif
     {
         WiFi.config(wiFiConfig.ip, wiFiConfig.gateway, wiFiConfig.subnet, wiFiConfig.dns1, wiFiConfig.dns2);
     }
