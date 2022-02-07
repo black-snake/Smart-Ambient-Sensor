@@ -202,6 +202,14 @@ bool WiFiManager::startConfigPortal(const char *apSsid, unsigned long timeoutSec
     ESPAsync_wifiManager.setConnectTimeout(30);
     ESPAsync_wifiManager.setConfigPortalChannel(0); // 0 = random
 
+    WiFi_STA_IPConfig staConfig;
+    staConfig._sta_static_ip = IPAddress(0);
+    staConfig._sta_static_gw = IPAddress(0);
+    staConfig._sta_static_sn = IPAddress(0);
+    staConfig._sta_static_dns1 = IPAddress(0);
+    staConfig._sta_static_dns2 = IPAddress(0);
+    ESPAsync_wifiManager.setSTAStaticIPConfig(staConfig);
+
     for (ESPAsync_WMParameter *configParameter : _configParameters)
     {
         ESPAsync_wifiManager.addParameter(configParameter);
@@ -229,7 +237,6 @@ bool WiFiManager::startConfigPortal(const char *apSsid, unsigned long timeoutSec
 
     WiFiConfig wiFiConfig;
 
-    WiFi_STA_IPConfig staConfig;
     ESPAsync_wifiManager.getSTAStaticIPConfig(staConfig);
     wiFiConfig.ip = staConfig._sta_static_ip;
     wiFiConfig.gateway = staConfig._sta_static_gw;
