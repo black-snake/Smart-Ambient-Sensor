@@ -17,6 +17,8 @@
 
 ConfigManager *pConfigManager;
 
+ResetDetector *pResetDetector;
+
 WiFiConfig gWiFiConfig;
 WiFiManager *pWiFiManager;
 
@@ -45,7 +47,7 @@ void handleConfigPortalCallback(bool success, WiFiConfig &wiFiConfig, std::map<c
   mqttConfig.password = String(configParameters["mqtt.password"]);
   pConfigManager->write<MqttConfig>(mqttConfig);
 
-  ResetDetector::clear();
+  pResetDetector->clear();
   ESP.restart();
 }
 
@@ -87,16 +89,19 @@ void setup()
   // however, since this object instance is need for the entire lifetime of the program, it is useless to declare memory reclaiming for it
   pConfigManager = new ConfigManager();
 
-  if (ResetDetector::shouldReset())
+  // usually, object instances created with keyword 'new' need to be deleted manually
+  // however, since this object instance is need for the entire lifetime of the program, it is useless to declare memory reclaiming for it
+  pResetDetector = new ResetDetector(*pConfigManager);
+
+  if (pResetDetector->shouldReset())
   {
-    ResetDetector::clear();
-    pConfigManager->reset(pConfigManager->ConfigManager::ResetMode::HardReset);
+    pConfigManager->reset(ConfigManager::ResetMode::HardReset);
     ESP.restart();
   }
 
   if (!Helpers::hasWokenUpFromDeepSleep())
   {
-    ResetDetector::go(15 * 1000);
+    pResetDetector->go(15 * 1000);
   }
 
   if (pConfigManager->exists(gWiFiConfig))
@@ -144,11 +149,11 @@ void loop()
 {
   Helpers::ledFlasher.start(50);
 
-  ResetDetector::process();
+  pResetDetector->process();
   pAmbientSensor->measure();
 
   // return early to allow for disabling reset detection
-  if (ResetDetector::isEnabled())
+  if (pResetDetector->isEnabled())
   {
     delay(250);
     return;
