@@ -95,7 +95,6 @@ void setup()
 
   if (pResetDetector->shouldReset())
   {
-    pResetDetector->clear();
     pConfigManager->reset(ConfigManager::ResetMode::HardReset);
     ESP.restart();
   }

@@ -72,7 +72,7 @@ bool ConfigManager::read(T &config)
 
     if (!FILESYSTEM.exists(path))
     {
-        Serial.print(F("Error: The file does not exist: "));
+        Serial.print(F("Error: The config file does not exist: "));
         Serial.println(path);
         return false;
     }
@@ -85,7 +85,7 @@ bool ConfigManager::read(T &config)
         config = T::deserialize(content.c_str());
         file.close();
 
-        Serial.print(F("Successfully read file: "));
+        Serial.print(F("Successfully read config file: "));
         Serial.println(path);
         Serial.print(F("File content read: "));
         Serial.println(content);
@@ -114,7 +114,7 @@ bool ConfigManager::write(T &config)
         file.write((const uint8_t *)str, strlen_P(str));
         file.close();
 
-        Serial.print(F("Successfully written file: "));
+        Serial.print(F("Successfully written config file: "));
         Serial.println(path);
         Serial.print(F("File content written: "));
         Serial.println(content);
@@ -133,7 +133,20 @@ template <class T>
 bool ConfigManager::remove(T &config)
 {
     String path = getPath(config);
-    return FILESYSTEM.remove(path);
+    bool result = FILESYSTEM.remove(path);
+
+    if (result)
+    {
+        Serial.print(F("Successfully removed config file: "));
+        Serial.println(path);
+    }
+    else
+    {
+        Serial.print(F("Error: Failed to remove config file: "));
+        Serial.println(path);
+    }
+
+    return result;
 }
 
 #endif
