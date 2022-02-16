@@ -32,7 +32,12 @@ void ResetDetector::go(unsigned long timeout)
 
 void ResetDetector::clear()
 {
-    bool result = _configManager.remove(_resetConfig);
+    bool result = true;
+
+    if (_configManager.exists(_resetConfig))
+    {
+        result = _configManager.remove(_resetConfig);
+    }
 
     if (result)
     {
